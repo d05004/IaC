@@ -1,41 +1,67 @@
-
 terraform {
-  required_version = ">= 0.12"
-    required_providers {
-      openstack = {
-        source = "terraform-provider-openstack/openstack"
-        version = "~> 1.48.0"
-    }
-  }
+	required_version =">= 0.12"
+	required_providers {
+		openstack = {
+			source 	= "terraform-provider-openstack/openstack"
+			version	= "~> 1.48.0"
+		}
+	}
 }
 
-provider openstack{
-        user_name       = "admin"
-        tenant_name     = "admin"
-        password        = "secret"
-        auth_url        = "http://172.30.1.17/identity"
+provider openstack {
+	user_name		= "admin"
+	tenant_name		= "admin"
+	password		= "secret"
+	auth_url		= "http://172.30.1.17/identity"
 }
 
+# Image creation
+resource "openstack_images_image_v2" "ubuntu1404" {
+	name				= "ubuntu1404"
+	local_file_path		= "/opt/stack/IaC/trusty-server-cloudimg-amd64-disk1.img"
+	container_format	= "bare"
+	disk_format			= "qcow2"
+}
+
+# Router creation
+resource "openstack_networking_router_v2" "router_1" {
+	name				= "router_1"
+	external_network_id	= "79b55f9d-6d55-4a55-b564-920a266f5eb1"
+}
+
+
+# Network creation
 resource "openstack_networking_network_v2" "private_1"{
-        name            = "AAAA" 
-        admin_state_up  = true
+	name			= "private_1"
+	admin_state_up	= true
 }
 
-resource "openstack_networking_subnet_v2" "subnet_1"{
-        name            ="subnet_1"
-        network_id      ="${openstack_networking_network_v2.private_1.id}"
-        cidr            ="10.0.0.0/24"
-        ip_version      = 4
+# Subnet creation
+resource "openstack_networking_subnet_v2" "subnet_1" {
+	name		= "subnet_1"
+	network_id	= openstack_networking_network_v2.private_1.id
+	cidr		= "10.0.0.0/24"
+	ip_version	= 4
 }
 
-resource "openstack_compute_instance_v2" "test1" {
-        name            = "test1"
-        image_id        = "dce6200f-ee95-4085-a6a0-339d833cad0f"
-        flavor_id       = "42"
-        key_pair        = "test-key"
-        security_groups = ["default"]
-
-        network {
-                name = "subnet_1"
-        }
+# Connect subnet and external network 
+resource "openstack_networking_router_interface_v2" "interface_1"{
+	router_id	= openstack_networking_router_v2.router_1.id
+	subnet_id	= openstack_networking_subnet_v2.subnet_1.id
 }
+
+# Instance creation
+resource "openstack_compute_instance_v2" "instance_1" {
+	name			= "instance_1"
+	image_id		= openstack_images_image_v2.ubuntu1404.id
+	flavor_id		= "2"
+	security_groups	= ["default"]
+
+	user_data		= file("test.sh")
+
+	network {
+		name	= "private_1"
+	}
+}
+
+
