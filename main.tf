@@ -50,6 +50,30 @@ resource "openstack_networking_router_interface_v2" "interface_1"{
 	subnet_id	= openstack_networking_subnet_v2.subnet_1.id
 }
 
+#Access group http
+resource "openstack_compute_secgroup_v2" "http"{
+	name			= "http"
+	description		= "Open input http port"
+	rule {
+		from_port	= 80
+		to_port		= 80
+		ip_protocol	= "tcp"
+		cidr		= "0.0.0.0/0"
+	}
+}
+
+#Access group ssh
+resource "openstack_compute_secgroup_v2" "ssh" {
+	name			= "ssh"
+	description		= "Open input ssh port"
+	rule {
+		from_port	= 22
+		to_port		= 22
+		ip_protocol	= "tcp"
+		cidr		= "0.0.0.0/0"
+	}
+}
+
 # Instance creation
 resource "openstack_compute_instance_v2" "instance_1" {
 	name			= "instance_1"
