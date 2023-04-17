@@ -74,6 +74,18 @@ resource "openstack_compute_secgroup_v2" "ssh" {
 	}
 }
 
+#Access group icmp
+resource "openstack_compute_secgroup_v2" "icmp" {
+	name			= "icmp"
+	description		= "Open icmp"
+	rule {
+		from_port	= -1
+		to_port		= -1
+		ip_protocol	= "icmp"
+		cidr		= "0.0.0.0/0"
+	}
+}
+
 #Create network port
 resource "openstack_networking_port_v2" "http" {
 	name				= "port-instance-http"
@@ -81,7 +93,8 @@ resource "openstack_networking_port_v2" "http" {
 	admin_state_up		= true
 	security_group_ids 	= [
 		openstack_compute_secgroup_v2.http.id,
-		openstack_compute_secgroup_v2.ssh.id
+		openstack_compute_secgroup_v2.ssh.id,
+		openstack_compute_secgroup_v2.icmp.id
 	]
 	fixed_ip {
 		subnet_id 		= openstack_networking_subnet_v2.subnet_1.id
@@ -109,7 +122,7 @@ resource "openstack_compute_instance_v2" "instance_1" {
 	user_data		= file("test.sh")
 
 	network {
-		name	= "private_1"
+		port		= openstack_networking_port_v2.http.id
 	}
 }
 
