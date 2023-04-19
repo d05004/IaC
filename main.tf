@@ -117,9 +117,9 @@ resource "openstack_compute_instance_v2" "instance_1" {
 	name			= "instance_1"
 	image_id		= openstack_images_image_v2.ubuntu1404.id
 	flavor_id		= "2"
-	security_groups	= ["default"]
 
 	user_data		= file("test.sh")
+
 
 	network {
 		port		= openstack_networking_port_v2.http.id
