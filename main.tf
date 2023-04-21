@@ -26,7 +26,7 @@ resource "openstack_images_image_v2" "ubuntu1404" {
 # Router creation
 resource "openstack_networking_router_v2" "router_1" {
 	name				= "router_1"
-	external_network_id	= "79b55f9d-6d55-4a55-b564-920a266f5eb1"
+	external_network_id	= "494c20a9-9995-42e2-b252-e8f3fa320b91"
 }
 
 
