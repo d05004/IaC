@@ -73,6 +73,17 @@ resource "openstack_compute_secgroup_v2" "http" {
 	}
 }
 
+resource "openstack_compute_secgroup_v2" "custom" {
+	name		= "custom"
+	description	= "Open custom port"
+	rule {
+		from_port	= 4444
+		to_port		= 4444
+		ip_protocol	= "tcp"
+		cidr		= "0.0.0.0/0"
+	}
+}
+
 
 resource "openstack_networking_port_v2" "http" {
     name                = "port-instance-http"
@@ -101,7 +112,7 @@ resource "openstack_compute_instance_v2" "instance_1" {
     image_id        = openstack_images_image_v2.ubuntu1404.id
     flavor_id       = "2"
 
-    user_data        = file("test.sh")
+    user_data        = file("instance_1.sh")
 
     network {
         port        = openstack_networking_port_v2.http.id
@@ -112,6 +123,10 @@ resource "openstack_compute_instance_v2" "instance_v2" {
 	name			= "instance_2"
 	image_id		= "664ee4a6-9315-4f37-b2a2-1cc93d264e4f"
 	flavor_id		= "42"
+
+	security_groups=["custom"]
+
+	user_data		= file("instance_2.sh")
 
 	network {
 		name		= "private_1"
