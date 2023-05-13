@@ -26,7 +26,7 @@ resource "openstack_images_image_v2" "ubuntu1404" {
 # Router creation
 resource "openstack_networking_router_v2" "router_1" {
     name                = "router_1"
-    external_network_id    = "494c20a9-9995-42e2-b252-e8f3fa320b91"
+    external_network_id    = "5f61083c-9709-4494-ba97-24cd04dab40f"
 }
 
 
@@ -62,24 +62,25 @@ resource "openstack_compute_secgroup_v2" "ssh" {
     }
 }
 
-resource "openstack_compute_secgroup_v2" "custom_port" {
-    name            = "custom_port"
-    description        = "Open custom input port"
-    rule {
-        from_port    = 34634
-        to_port        = 34634
-        ip_protocol    = "tcp"
-        cidr        = "0.0.0.0/0"
-    }
+resource "openstack_compute_secgroup_v2" "http" {
+	name		= "http"
+	description	= "Open input http port"
+	rule {
+		from_port	= 80
+		to_port		= 80
+		ip_protocol	="tcp"
+		cidr		="0.0.0.0/0"
+	}
 }
+
 
 resource "openstack_networking_port_v2" "http" {
     name                = "port-instance-http"
     network_id            = openstack_networking_network_v2.private_1.id
     admin_state_up        = true
     security_group_ids     = [
-        openstack_compute_secgroup_v2.custom_port.id,
         openstack_compute_secgroup_v2.ssh.id,
+		openstack_compute_secgroup_v2.http.id
     ]
     fixed_ip {
         subnet_id         = openstack_networking_subnet_v2.subnet_1.id
@@ -105,5 +106,15 @@ resource "openstack_compute_instance_v2" "instance_1" {
     network {
         port        = openstack_networking_port_v2.http.id
     }
+}
+
+resource "openstack_compute_instance_v2" "instance_v2" {
+	name			= "instance_2"
+	image_id		= "664ee4a6-9315-4f37-b2a2-1cc93d264e4f"
+	flavor_id		= "42"
+
+	network {
+		name		= "private_1"
+	}
 }
 
