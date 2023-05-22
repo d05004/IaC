@@ -3,9 +3,9 @@
 echo "script start" >> /tmp/result
 
 apt-get update -y
-apt-get install apache2 php git -y
+apt-get install apache2 php5 git -y
 git clone https://github.com/banago/simple-php-website.git
-php -S localhost:8080 &
+php -S 0.0.0.0:8080 -t /simple-php-website &
 
 cat << EOF > /var/www/html/backdoor.php
 <html>

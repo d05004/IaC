@@ -11,7 +11,7 @@ provider openstack {
     user_name        = "admin"
     tenant_name        = "admin"
     password        = "secret"
-    auth_url        = "http://121.135.134.175//identity"
+    auth_url        = "http://172.30.1.17/identity"
 }
 # Image creation
 resource "openstack_images_image_v2" "ubuntu1404" {
@@ -23,7 +23,7 @@ resource "openstack_images_image_v2" "ubuntu1404" {
 # Router creation
 resource "openstack_networking_router_v2" "router_1" {
     name                = "router_1"
-    external_network_id    = "28b2be49-04b2-416e-bf4d-2453fe77c450"
+    external_network_id    = "04e3c0d7-3a2d-4f53-a0f1-ff0bc65036a6"
 }
 # Network creation
 resource "openstack_networking_network_v2" "private_1"{
@@ -64,6 +64,16 @@ resource "openstack_compute_secgroup_v2" "http" {
 		cidr		="0.0.0.0/0"
 	}
 }
+resource "openstack_compute_secgroup_v2" "service" {
+	name		= "service"
+	description	= "Open input service port"
+	rule {
+		from_port	= 8080
+		to_port		= 8080
+		ip_protocol	= "tcp"
+		cidr		= "0.0.0.0/0"
+	}
+}
 
 resource "openstack_networking_port_v2" "http" {
     name                = "port-instance-http"
@@ -71,7 +81,8 @@ resource "openstack_networking_port_v2" "http" {
     admin_state_up        = true
     security_group_ids     = [
         openstack_compute_secgroup_v2.ssh.id,
-		openstack_compute_secgroup_v2.http.id
+		openstack_compute_secgroup_v2.http.id,
+		openstack_compute_secgroup_v2.service.id
     ]
     fixed_ip {
         subnet_id         = openstack_networking_subnet_v2.subnet_1.id
@@ -98,7 +109,4 @@ resource "openstack_compute_instance_v2" "instance_1" {
     }
 }
 
-resource "openstack_compute_instance_v2" "instance_2" {
-	name			= "instance"
-}
 
