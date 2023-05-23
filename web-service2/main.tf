@@ -8,17 +8,23 @@ terraform {
     }
 }
 provider openstack {
-    user_name        = "admin"
-    tenant_name        = "admin"
+    user_name       = "admin"
+    tenant_name     = "admin"
     password        = "secret"
     auth_url        = "http://172.30.1.17/identity"
 }
 # Image creation
 resource "openstack_images_image_v2" "ubuntu1804" {
     name                = "ubuntu1804"
-    local_file_path        = "/opt/stack/IaC/bionic-server-cloudimg-amd64.img"
+    local_file_path     = "/opt/stack/IaC/bionic-server-cloudimg-amd64.img"
     container_format    = "bare"
-    disk_format            = "qcow2"
+    disk_format         = "qcow2"
+}
+resource "openstack_images_image_v2" "cirros" {
+	name				= "cirros"
+	local_file_path		= "/opt/stack/IaC/cirros-0.5.2-x86_64-disk.img"
+	container_format	= "bare"
+	disk_format			= "qcow2"
 }
 # Flavor creation
 resource "openstack_compute_flavor_v2" "flavor_1" {
@@ -148,7 +154,7 @@ resource "openstack_compute_instance_v2" "instance_1" {
 resource "openstack_compute_instance_v2" "instance_2" {
 	count			= 3
 	name			= format("instance_2_%02d",count.index+1)
-	image_id		= "5493824b-411a-4ff2-89ba-5a883507e454"
+	image_id		= openstack_images_image_v2.cirros.id
 	flavor_id		= "42"
 	
 	network	{
@@ -160,7 +166,7 @@ resource "openstack_compute_instance_v2" "instance_2" {
 resource "openstack_compute_instance_v2" "instance_3" {
 	count			= 3
 	name			= format("instance_3_%02d",count.index+1)
-	image_id		= "5493824b-411a-4ff2-89ba-5a883507e454"
+	image_id		= openstack_images_image_v2.cirros.id
 	flavor_id		= "42"
 
 	network {
